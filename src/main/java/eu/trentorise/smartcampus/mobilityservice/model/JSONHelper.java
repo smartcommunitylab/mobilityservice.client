@@ -96,8 +96,13 @@ public class JSONHelper {
 	 * @throws JSONException
 	 */
 	public static List<AlertRoad> toRoadInfoList(String json) throws JSONException {
-		List<AlertRoad> res = new ArrayList<AlertRoad>();
 		JSONArray arr = new JSONArray(json);
+		return toRoadInfoList(arr);
+	}
+
+	private static List<AlertRoad> toRoadInfoList(JSONArray arr)
+			throws JSONException {
+		List<AlertRoad> res = new ArrayList<AlertRoad>();
 		for (int i = 0; i < arr.length(); i++) {
 			JSONObject o = arr.getJSONObject(i);
 			AlertRoad ar = new AlertRoad();
@@ -378,7 +383,7 @@ public class JSONHelper {
 				Leg leg = new Leg();
 				
 				JSONArray alerts;
-				if (lObj.has("alertDelayList") && !lObj.isNull("alertDelayList")) {
+				if (!lObj.isNull("alertDelayList")) {
 					alerts = lObj.getJSONArray("alertDelayList");
 					leg.setAlertDelayList(new ArrayList<AlertDelay>());
 					for (int k = 0; k < alerts.length(); k++) {
@@ -393,7 +398,7 @@ public class JSONHelper {
 						leg.getAlertDelayList().add(ac);
 					}
 				}
-				if (lObj.has("alertParkingList") && !lObj.isNull("alertParkingList")) {
+				if (!lObj.isNull("alertParkingList")) {
 					alerts = lObj.getJSONArray("alertParkingList");
 					leg.setAlertParkingList(new ArrayList<AlertParking>());
 					for (int k = 0; k < alerts.length(); k++) {
@@ -410,7 +415,7 @@ public class JSONHelper {
 						leg.getAlertParkingList().add(ac);
 					}
 				}
-				if (lObj.has("alertStrikeList") && !lObj.isNull("alertStrikeList")) {
+				if (!lObj.isNull("alertStrikeList")) {
 
 					alerts = lObj.getJSONArray("alertStrikeList");
 					leg.setAlertStrikeList(new ArrayList<AlertStrike>());
@@ -424,6 +429,23 @@ public class JSONHelper {
 						ac.setTransport(toTransport(acObj
 								.getJSONObject("transport")));
 						leg.getAlertStrikeList().add(ac);
+					}
+				}
+				if (!lObj.isNull("alertRoadList")) {
+					alerts = lObj.getJSONArray("alertRoadList");
+					leg.setAlertRoadList(toRoadInfoList(alerts));
+				}
+				if (!lObj.isNull("alertAccidentList")) {
+					alerts = lObj.getJSONArray("alertAccidentList");
+					leg.setAlertAccidentList(new ArrayList<AlertAccident>());
+					for (int k = 0; k < alerts.length(); k++) {
+						AlertAccident ac = new AlertAccident();
+						JSONObject acObj = alerts.getJSONObject(k);
+						toAlert(ac, acObj);
+						ac.setPosition(toPosition(acObj
+								.getJSONObject("position")));
+						ac.setSeverity(acObj.optString("severity", null));
+						leg.getAlertAccidentList().add(ac);
 					}
 				}
 				leg.setDuration(lObj.getLong("duration"));
