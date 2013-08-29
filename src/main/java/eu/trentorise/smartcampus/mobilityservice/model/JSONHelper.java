@@ -218,36 +218,45 @@ public class JSONHelper {
 		List<TripData> list = new ArrayList<TripData>();
 
 		JSONObject map = new JSONObject(json);
-		String[] keys = JSONObject.getNames(map); 
-		for (int i = 0; i < keys.length; i++) {
-			String routeId = keys[i];
-			JSONObject obj = map.getJSONObject(routeId);
-			JSONArray timesArr = obj.getJSONArray("times");
-			JSONObject delaysObj = obj.getJSONObject("delays");
-			for (int j = 0; j < timesArr.length(); j++) {
-				JSONObject rData = timesArr.getJSONObject(j);
-				TripData t = new TripData();
-				t.setRouteId(routeId);
-				t.setRouteName(obj.getString("name"));
-				t.setRouteShortName(obj.getString("route"));
-				t.setTime(rData.getLong("time"));
-				JSONObject tripObj = rData.getJSONObject("trip");
-				t.setTripId(tripObj.getString("id"));
-				t.setAgencyId(tripObj.getString("agency"));
-				
-				Delay delay = null;
-				if (delaysObj.has(t.getTripId())) {
-					delay = new Delay();
-					JSONObject delayMap = delaysObj.getJSONObject(t.getTripId());
-					String[] types = JSONObject.getNames(delayMap);
-					for (int k = 0; k < types.length; k++) {
-						delay.values.put(CreatorType.getAlertType(types[k]), delayMap.getString(types[k]));
+		JSONArray keys = map.names(); 
+		
+		if (keys != null) {
+			for (int i = 0; i < keys.length(); i++) {
+				String routeId = keys.getString(i);
+				JSONObject obj = map.getJSONObject(routeId);
+				JSONArray timesArr = obj.getJSONArray("times");
+				JSONObject delaysObj = obj.getJSONObject("delays");
+				for (int j = 0; j < timesArr.length(); j++) {
+					JSONObject rData = timesArr.getJSONObject(j);
+					TripData t = new TripData();
+					t.setRouteId(routeId);
+					t.setRouteName(obj.getString("name"));
+					t.setRouteShortName(obj.getString("route"));
+					t.setTime(rData.getLong("time"));
+					JSONObject tripObj = rData.getJSONObject("trip");
+					t.setTripId(tripObj.getString("id"));
+					t.setAgencyId(tripObj.getString("agency"));
+
+					Delay delay = null;
+					if (delaysObj.has(t.getTripId())) {
+						delay = new Delay();
+						JSONObject delayMap = delaysObj.getJSONObject(t
+								.getTripId());
+						JSONArray types = delayMap.names();
+						if (types != null) {
+							for (int k = 0; k < types.length(); k++) {
+								String type = types.getString(k);
+								delay.values.put(
+										CreatorType.getAlertType(type),
+										delayMap.getString(type));
+							}
+						}
 					}
+					t.setDelay(delay);
+					list.add(t);
 				}
-				t.setDelay(delay);
-				list.add(t);
- 			}
-			
+
+			}
 		}
 		return list;
 	}
@@ -294,10 +303,11 @@ public class JSONHelper {
 		for (int i = 0; i < arr.length(); i++) {
 			Delay delay = new Delay();
 			JSONObject delayMap = arr.getJSONObject(i);
-			String[] types = JSONObject.getNames(delayMap);
+			JSONArray types = delayMap.names();
 			if (types != null) {
-				for (int k = 0; k < types.length; k++) {
-					delay.values.put(CreatorType.getAlertType(types[k]), delayMap.getString(types[k]));
+				for (int k = 0; k < types.length(); k++) {
+					String type = types.getString(k);
+					delay.values.put(CreatorType.getAlertType(type), delayMap.getString(type));
 				}
 			}
 			result.getDelays().add(delay);
@@ -320,10 +330,11 @@ public class JSONHelper {
 		for (int i = 0; i < arr.length(); i++) {
 			Delay delay = new Delay();
 			JSONObject delayMap = arr.getJSONObject(i);
-			String[] types = JSONObject.getNames(delayMap);
+			JSONArray types = delayMap.names();
 			if (types != null) {
-				for (int k = 0; k < types.length; k++) {
-					delay.values.put(CreatorType.getAlertType(types[k]), delayMap.getString(types[k]));
+				for (int k = 0; k < types.length(); k++) {
+					String type = types.getString(k);
+					delay.values.put(CreatorType.getAlertType(type), delayMap.getString(type));
 				}
 			}
 			delays.add(delay);
@@ -583,11 +594,12 @@ public class JSONHelper {
 
 		if (!o.isNull("monitorLegs")) {
 			JSONObject monitorLegs = o.getJSONObject("monitorLegs");
-			String[] keys = JSONObject.getNames(monitorLegs);
+			JSONArray keys = monitorLegs.names();
 			Map<String,Boolean> map = new HashMap<String, Boolean>();
 			if (keys != null) {
-				for (int i = 0; i < keys.length; i++) {
-					map.put(keys[i], monitorLegs.getBoolean(keys[i]));
+				for (int i = 0; i < keys.length(); i++) {
+					String key = keys.getString(i);
+					map.put(key, monitorLegs.getBoolean(key));
 				}
 			}
 			rj.setMonitorLegs(map);
