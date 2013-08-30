@@ -21,7 +21,7 @@ package eu.trentorise.smartcampus.mobilityservice;
  */
 public class Constants {
 
-	static final String USER_AUTH_TOKEN = "432c0d34-7644-4eee-98fc-a4457c25ceaf";
+	static final String USER_AUTH_TOKEN = "67c0da56-c1b3-4fc7-8d5a-f2fc5850b2b6";
 	static final String CLIENT_AUTH_TOKEN = "5e601e28-f318-4fe5-80ee-d92e4382d33a";
 	static final long CREATOR_ID = -1l;
 	static final String SC_COMMUNITY_ID = "Smartcampus";

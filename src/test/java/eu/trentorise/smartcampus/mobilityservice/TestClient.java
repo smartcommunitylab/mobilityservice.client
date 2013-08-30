@@ -135,17 +135,18 @@ public class TestClient {
 	public void planning() throws SecurityException, MobilityServiceException {
 		// single
 		SingleJourney request = new SingleJourney();
-		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
-		request.setDepartureTime(new SimpleDateFormat("hh:mmaa").format(new Date()));
+//		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
+		request.setDate("08/30/2013");
+		request.setDepartureTime("04:26PM");//new SimpleDateFormat("hh:mmaa").format(new Date()));
 		Position from = new Position();
-		from.setLat("46.066799");
-		from.setLon("11.151796");
+		from.setLat("46.0699898");
+		from.setLon("11.150353");
 		request.setFrom(from);
-		Position to = new Position("46.066695,11.11889");
+		Position to = new Position("46.0746659,11.1216972");
 		request.setTo(to);
 		request.setResultsNumber(1);
 		request.setRouteType(RType.fastest);
-		request.setTransportTypes(new TType[]{TType.TRANSIT, TType.BICYCLE});
+		request.setTransportTypes(new TType[]{TType.TRANSIT, TType.CAR, TType.WALK});
 		List<Itinerary> list = plannerService.planSingleJourney(request, Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(list);
 		Assert.assertTrue(list.size() > 0);
@@ -297,9 +298,9 @@ public class TestClient {
 		// recurrent
 		RecurrentJourneyParameters recRequest = new RecurrentJourneyParameters();
 		Position from = new Position();
-		from.setLat("46.066799");
-		from.setLon("11.151796");
-		Position to = new Position("46.066695,11.11889");
+		from.setLat("46.0699898");
+		from.setLon("11.150353");
+		Position to = new Position("46.0746659,11.1216972");
 		recRequest.setFrom(from);
 		recRequest.setTo(to);
 		recRequest.setFromDate(System.currentTimeMillis());

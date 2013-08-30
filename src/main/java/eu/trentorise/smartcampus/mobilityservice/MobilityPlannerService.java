@@ -22,7 +22,7 @@ import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
 
 import java.util.List;
 
-import eu.trentorise.smartcampus.mobilityservice.model.JSONHelper;
+import eu.trentorise.smartcampus.network.JsonUtils;
 import eu.trentorise.smartcampus.network.RemoteConnector;
 
 
@@ -63,8 +63,8 @@ public class MobilityPlannerService {
 		if (request == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			String json = RemoteConnector.postJSON(serviceUrl, SINGLE, JSONHelper.toJSON(request), token);
-			return JSONHelper.toItineraryList(json);
+			String json = RemoteConnector.postJSON(serviceUrl, SINGLE, JsonUtils.toJSON(request), token);
+			return JsonUtils.toObjectList(json, Itinerary.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -83,8 +83,8 @@ public class MobilityPlannerService {
 		if (request == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			String json = RemoteConnector.postJSON(serviceUrl, RECURRENT, JSONHelper.toJSON(request), token);
-			return JSONHelper.toRecurrentJourney(json);
+			String json = RemoteConnector.postJSON(serviceUrl, RECURRENT, JsonUtils.toJSON(request), token);
+			return JsonUtils.toObject(json, RecurrentJourney.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {

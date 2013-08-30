@@ -21,7 +21,7 @@ import java.util.List;
 
 import eu.trentorise.smartcampus.mobilityservice.model.BasicItinerary;
 import eu.trentorise.smartcampus.mobilityservice.model.BasicRecurrentJourney;
-import eu.trentorise.smartcampus.mobilityservice.model.JSONHelper;
+import eu.trentorise.smartcampus.network.JsonUtils;
 import eu.trentorise.smartcampus.network.RemoteConnector;
 
 
@@ -65,8 +65,8 @@ public class MobilityUserService {
 		if (input == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			String json = RemoteConnector.postJSON(serviceUrl, SINGLE_JOURNEY, JSONHelper.toJSON(input), token);
-			return JSONHelper.toBasicItinerary(json);
+			String json = RemoteConnector.postJSON(serviceUrl, SINGLE_JOURNEY, JsonUtils.toJSON(input), token);
+			return JsonUtils.toObject(json, BasicItinerary.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -83,7 +83,7 @@ public class MobilityUserService {
 	public List<BasicItinerary> getSingleJourneys(String token) throws MobilityServiceException {
 		try {
 			String json = RemoteConnector.getJSON(serviceUrl, SINGLE_JOURNEY, token);
-			return JSONHelper.toBasicItineraryList(json);
+			return JsonUtils.toObjectList(json,BasicItinerary.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -103,7 +103,7 @@ public class MobilityUserService {
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(SINGLE_JOURNEY_P, id), token);
-			return JSONHelper.toBasicItinerary(json);
+			return JsonUtils.toObject(json, BasicItinerary.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -164,8 +164,8 @@ public class MobilityUserService {
 		if (input == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			String json = RemoteConnector.postJSON(serviceUrl, RECURRENT_JOURNEY, JSONHelper.toJSON(input), token);
-			return JSONHelper.toBasicRecurrentJourney(json);
+			String json = RemoteConnector.postJSON(serviceUrl, RECURRENT_JOURNEY, JsonUtils.toJSON(input), token);
+			return JsonUtils.toObject(json,BasicRecurrentJourney.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -182,7 +182,7 @@ public class MobilityUserService {
 	public List<BasicRecurrentJourney> getRecurrentJourneys(String token) throws MobilityServiceException {
 		try {
 			String json = RemoteConnector.getJSON(serviceUrl, RECURRENT_JOURNEY, token);
-			return JSONHelper.toBasicRecurrentJourneyList(json);
+			return JsonUtils.toObjectList(json, BasicRecurrentJourney.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -202,7 +202,7 @@ public class MobilityUserService {
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(RECURRENT_JOURNEY_P, id), token);
-			return JSONHelper.toBasicRecurrentJourney(json);
+			return JsonUtils.toObject(json,BasicRecurrentJourney.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -263,7 +263,7 @@ public class MobilityUserService {
 		if (input == null || id == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			String json = RemoteConnector.putJSON(serviceUrl, String.format(RECURRENT_JOURNEY_P, id), JSONHelper.toJSON(input), token);
+			String json = RemoteConnector.putJSON(serviceUrl, String.format(RECURRENT_JOURNEY_P, id), JsonUtils.toJSON(input), token);
 			return Boolean.valueOf(json);
 		}catch (SecurityException e) {
 			throw e;

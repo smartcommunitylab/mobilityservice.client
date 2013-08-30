@@ -16,8 +16,14 @@
 package eu.trentorise.smartcampus.mobilityservice;
 
 import it.sayservice.platform.smartplanner.data.message.alerts.Alert;
+import it.sayservice.platform.smartplanner.data.message.alerts.AlertAccident;
+import it.sayservice.platform.smartplanner.data.message.alerts.AlertDelay;
+import it.sayservice.platform.smartplanner.data.message.alerts.AlertParking;
+import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoad;
+import it.sayservice.platform.smartplanner.data.message.alerts.AlertStrike;
+import it.sayservice.platform.smartplanner.data.message.alerts.AlertType;
 import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
-import eu.trentorise.smartcampus.mobilityservice.model.JSONHelper;
+import eu.trentorise.smartcampus.network.JsonUtils;
 import eu.trentorise.smartcampus.network.RemoteConnector;
 
 
@@ -56,12 +62,27 @@ public class MobilityAlertService {
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
 			alert.setCreatorType(CreatorType.USER);
-			RemoteConnector.postJSON(serviceUrl, USER_ALERT, JSONHelper.toJSON(alert), token);
+			RemoteConnector.postJSON(serviceUrl, USER_ALERT, toJSON(alert), token);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new MobilityServiceException(e);
 		}
+	}
+
+	/**
+	 * @param alert
+	 * @return
+	 */
+	private String toJSON(Alert alert) {
+		if (alert.getType() == null) {
+			if (alert instanceof AlertRoad) alert.setType(AlertType.ROAD);
+			if (alert instanceof AlertAccident) alert.setType(AlertType.ACCIDENT);
+			if (alert instanceof AlertDelay) alert.setType(AlertType.DELAY);
+			if (alert instanceof AlertParking) alert.setType(AlertType.PARKING);
+			if (alert instanceof AlertStrike) alert.setType(AlertType.STRIKE);
+		}
+		return JsonUtils.toJSON(alert);
 	}
 
 	/**
@@ -75,7 +96,7 @@ public class MobilityAlertService {
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
 			alert.setCreatorType(CreatorType.SERVICE);
-			RemoteConnector.postJSON(serviceUrl, SERVICE_ALERT, JSONHelper.toJSON(alert), token);
+			RemoteConnector.postJSON(serviceUrl, SERVICE_ALERT, JsonUtils.toJSON(alert), token);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {

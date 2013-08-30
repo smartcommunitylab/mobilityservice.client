@@ -16,19 +16,22 @@
 package eu.trentorise.smartcampus.mobilityservice;
 
 import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoad;
+import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Parking;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Stop;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.StopTime;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
-import eu.trentorise.smartcampus.mobilityservice.model.JSONHelper;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
+import eu.trentorise.smartcampus.network.JsonUtils;
 import eu.trentorise.smartcampus.network.RemoteConnector;
 
 
@@ -76,7 +79,7 @@ public class MobilityDataService {
 		try {
 			agencyId = URLEncoder.encode(agencyId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(PARKING, agencyId), token);
-			return JSONHelper.toParkingList(json);
+			return JsonUtils.toObjectList(json,Parking.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -103,7 +106,7 @@ public class MobilityDataService {
 		try {
 			agencyId = URLEncoder.encode(agencyId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(ROADINFO, agencyId, from, to), token);
-			return JSONHelper.toRoadInfoList(json);
+			return JsonUtils.toObjectList(json, AlertRoad.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -124,7 +127,7 @@ public class MobilityDataService {
 		try {
 			agencyId = URLEncoder.encode(agencyId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(ROUTES, agencyId), token);
-			return JSONHelper.toRouteList(json);
+			return JsonUtils.toObjectList(json, Route.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -147,7 +150,7 @@ public class MobilityDataService {
 			agencyId = URLEncoder.encode(agencyId, "utf8");
 			routeId = URLEncoder.encode(routeId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(STOPS, agencyId, routeId), token);
-			return JSONHelper.toStopList(json);
+			return JsonUtils.toObjectList(json, Stop.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -173,7 +176,7 @@ public class MobilityDataService {
 			routeId = URLEncoder.encode(routeId, "utf8");
 			stopId = URLEncoder.encode(stopId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(TT, agencyId, routeId, stopId), token);
-			return JSONHelper.toStopTimeList(json);
+			return JsonUtils.toObjectList(json, StopTime.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
@@ -198,12 +201,51 @@ public class MobilityDataService {
 			stopId = URLEncoder.encode(stopId, "utf8");
 			if (maxResults == null || maxResults < 0) maxResults = 3;
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(LIMITED_TT, agencyId, stopId, maxResults), token);
-			return JSONHelper.toTripDataList(json);
+			return toTripDataList(json);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new MobilityServiceException(e);
 		}
+	}
+
+	/**
+	 * @param json
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private List<TripData> toTripDataList(String json) {
+		Map<String,Object> map = JsonUtils.toObject(json, Map.class);
+		List<TripData> result = new ArrayList<TripData>();
+		for(String routeId : map.keySet()) {
+			Map obj = (Map)map.get(routeId);
+			List<Map> times = (List)obj.get("times");
+			Map delays = (Map)obj.get("delays");
+			for (Map tMap : times) {
+				TripData t = new TripData();
+				t.setRouteId(routeId);
+				t.setRouteName((String)obj.get("name"));
+				t.setRouteShortName((String)obj.get("route"));
+				if (tMap.containsKey("time")) t.setTime(Long.parseLong(tMap.get("time").toString()));
+				Map tripObj = (Map)tMap.get("trip");
+				t.setTripId((String)tripObj.get("id"));
+				t.setAgencyId((String)tripObj.get("agency"));
+
+				Delay delay = null;
+				if (delays.containsKey(t.getTripId())) {
+					delay = new Delay();
+					Map delayMap = (Map)delays.get(t.getTripId());
+					for (Object type : delayMap.keySet()) {
+						delay.getValues().put(CreatorType.getAlertType(type.toString()),
+								(String)delayMap.get(type));
+					}
+				}
+				t.setDelay(delay);
+				result.add(t);
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -232,12 +274,51 @@ public class MobilityDataService {
 			cal.set(Calendar.MILLISECOND, 999);
 			long to = cal.getTimeInMillis();
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(TRANSIT_TIMES, routeId, from, to), token);
-			return JSONHelper.toTimeTable(json);
+			return toTimetable(json);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new MobilityServiceException(e);
 		}
+	}
+
+	/**
+	 * @param json
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private TimeTable toTimetable(String json) {
+		TimeTable tt = new TimeTable();
+		Map map = JsonUtils.toObject(json, Map.class);
+		tt.setStops(JsonUtils.convert(map.get("stops"), List.class));
+		tt.setStopsId(JsonUtils.convert(map.get("stopsId"), List.class));
+		List list = (List)map.get("tripIds");
+		tt.setTripIds(JsonUtils.convert(list.get(0), List.class));
+		list = (List)map.get("times");
+		tt.setTimes(JsonUtils.convert(list.get(0), List.class));
+		list = (List)map.get("delays");
+		tt.setDelays(new ArrayList<Delay>());
+		for (Object o : (List)list.get(0)) {
+			Delay d = JsonUtils.convert(o, Delay.class);
+			tt.getDelays().add(d);
+		}
+		return tt;
+	}
+
+	/**
+	 * @param json
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<Delay> toDelays(String json) {
+		Map map = JsonUtils.toObject(json, Map.class);
+		List list = (List)map.get("delays");
+		List<Delay> result = new ArrayList<Delay>();
+		for (Object o : (List)list.get(0)) {
+			Delay d = JsonUtils.convert(o, Delay.class);
+			result.add(d);
+		}
+		return result;
 	}
 
 	/**
@@ -263,7 +344,7 @@ public class MobilityDataService {
 			cal.set(Calendar.MILLISECOND, 999);
 			long to = cal.getTimeInMillis();
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(TRANSIT_DELAYS, routeId, from, to), token);
-			return JSONHelper.toDelayList(json);
+			return toDelays(json);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {
