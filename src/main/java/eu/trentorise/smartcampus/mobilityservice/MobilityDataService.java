@@ -17,6 +17,8 @@ package eu.trentorise.smartcampus.mobilityservice;
 
 import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoad;
 import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
+import it.sayservice.platform.smartplanner.data.message.cache.CacheUpdateResponse;
+import it.sayservice.platform.smartplanner.data.message.otpbeans.CompressedTransitTimeTable;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Parking;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Stop;
@@ -25,6 +27,7 @@ import it.sayservice.platform.smartplanner.data.message.otpbeans.StopTime;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +36,7 @@ import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
 import eu.trentorise.smartcampus.network.JsonUtils;
 import eu.trentorise.smartcampus.network.RemoteConnector;
+import eu.trentorise.smartcampus.network.RemoteException;
 
 
 /**
@@ -52,6 +56,8 @@ public class MobilityDataService {
 	private static final String TRANSIT_DELAYS = "gettransitdelays/%s/%s/%s";
 	private static final String PARKING = "getparkingsbyagency/%s";
 	private static final String ROADINFO = "getroadinfobyagency/%s/%s/%s";
+	private static final String CACHE_STATUS = "getcachestatus";
+	private static final String CACHE_UPDATE = "getcacheupdate/%s/%s";
 
 	private String serviceUrl;
 
@@ -306,10 +312,46 @@ public class MobilityDataService {
 	}
 
 	/**
+	 * Retrieve the status of the cached timetables from the server 
+	 * @param versions current versions (of each agency of interest) to update
+	 * @param token user or client access token
+	 * @return map with agency and the updates of that agency.
+	 * @throws SecurityException
+	 * @throws RemoteException
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, CacheUpdateResponse> getCacheStatus(Map<String,String> versions, String token) throws SecurityException, RemoteException {
+		Map<String, CacheUpdateResponse> map = new HashMap<String, CacheUpdateResponse>();
+		String body = versions == null || versions.isEmpty() ? "{}" : JsonUtils.toJSON(versions);
+		String json = RemoteConnector.postJSON(serviceUrl, CACHE_STATUS, body, token);
+		Map<String, Object> jsonMap = JsonUtils.toObject(json, Map.class);
+		if (jsonMap != null) {
+			for (String agency : jsonMap.keySet()) {
+				map.put(agency, JsonUtils.convert(jsonMap.get(agency), CacheUpdateResponse.class));
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Get the compressed timetable used by the timetable cache.
+	 * @param agencyId agency ID of interest
+	 * @param ttId timetable ID as returned by the status message
+	 * @param token user or client access token
+	 * @return {@link CompressedTransitTimeTable} instance
+	 * @throws SecurityException
+	 * @throws RemoteException
+	 */
+	public CompressedTransitTimeTable getCachedTimetable(String agencyId, String ttId, String token) throws SecurityException, RemoteException {
+		String json = RemoteConnector.getJSON(serviceUrl, String.format(CACHE_UPDATE, agencyId, ttId), token);
+		return JsonUtils.toObject(json, CompressedTransitTimeTable.class);
+	}
+	
+	/**
 	 * @param json
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	private List<Delay> toDelays(String json) {
 		Map map = JsonUtils.toObject(json, Map.class);
 		List list = (List)map.get("delays");

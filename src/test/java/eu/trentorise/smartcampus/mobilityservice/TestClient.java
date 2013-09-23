@@ -30,9 +30,11 @@ import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoad;
 import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoadType;
 import it.sayservice.platform.smartplanner.data.message.alerts.AlertStrike;
 import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
+import it.sayservice.platform.smartplanner.data.message.cache.CacheUpdateResponse;
 import it.sayservice.platform.smartplanner.data.message.journey.RecurrentJourney;
 import it.sayservice.platform.smartplanner.data.message.journey.RecurrentJourneyParameters;
 import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
+import it.sayservice.platform.smartplanner.data.message.otpbeans.CompressedTransitTimeTable;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Parking;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Stop;
@@ -41,7 +43,9 @@ import it.sayservice.platform.smartplanner.data.message.otpbeans.StopTime;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import junit.framework.Assert;
@@ -54,6 +58,7 @@ import eu.trentorise.smartcampus.mobilityservice.model.BasicRecurrentJourney;
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
+import eu.trentorise.smartcampus.network.RemoteException;
 
 public class TestClient {
 
@@ -129,6 +134,27 @@ public class TestClient {
 		List<Delay> delays = dataService.getDelays(routes.get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(delays);
 		System.err.println(delays);
+	}
+	
+	@Test
+	public void cache() throws SecurityException, RemoteException {
+		Map<String,String> in = new HashMap<String, String>();
+		in.put("10", "0");
+		in.put("5", "0");
+		
+		Map<String, CacheUpdateResponse> res = dataService.getCacheStatus(in, Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(res);
+		Assert.assertTrue(res.size() > 0);
+		for (String agency : res.keySet()) {
+			System.err.println(res.get(agency));
+			for (String s : res.get(agency).getAdded()) {
+				CompressedTransitTimeTable ctt = dataService.getCachedTimetable(agency, s, Constants.USER_AUTH_TOKEN);
+				Assert.assertNotNull(ctt);
+				System.err.println(ctt);
+			}
+		}
+		
+		
 	}
 
 	@Test
