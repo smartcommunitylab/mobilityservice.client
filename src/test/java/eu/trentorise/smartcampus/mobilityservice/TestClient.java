@@ -16,6 +16,7 @@
 package eu.trentorise.smartcampus.mobilityservice;
 
 import it.sayservice.platform.smartplanner.data.message.Itinerary;
+import it.sayservice.platform.smartplanner.data.message.Leg;
 import it.sayservice.platform.smartplanner.data.message.Position;
 import it.sayservice.platform.smartplanner.data.message.RType;
 import it.sayservice.platform.smartplanner.data.message.RoadElement;
@@ -53,11 +54,15 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import eu.trentorise.smartcampus.communicator.CommunicatorConnector;
+import eu.trentorise.smartcampus.communicator.model.Notifications;
 import eu.trentorise.smartcampus.mobilityservice.model.BasicItinerary;
 import eu.trentorise.smartcampus.mobilityservice.model.BasicRecurrentJourney;
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
+import eu.trentorise.smartcampus.network.RemoteConnector;
+import eu.trentorise.smartcampus.network.RemoteConnector.CLIENT_TYPE;
 import eu.trentorise.smartcampus.network.RemoteException;
 
 public class TestClient {
@@ -73,6 +78,7 @@ public class TestClient {
 		plannerService = new MobilityPlannerService(Constants.SERVER_URL);
 		alertService = new MobilityAlertService(Constants.SERVER_URL);
 		userService = new MobilityUserService(Constants.SERVER_URL);
+		RemoteConnector.setClientType(CLIENT_TYPE.CLIENT_ACCEPTALL);
 	}
 
 	@Test
@@ -366,4 +372,91 @@ public class TestClient {
 			Assert.assertTrue(userService.deleteRecurrentJourney(br.getClientId(), Constants.USER_AUTH_TOKEN));
 		}
 	}
+
+	@Test
+	public void testAlerts() throws Exception {
+		CommunicatorConnector communicatorConnector = new CommunicatorConnector(Constants.COMMUNICATOR_SRV_URL, Constants.APPID);
+		long since = System.currentTimeMillis();
+		Notifications nots = communicatorConnector.getNotificationsByApp(since, 0, -1, Constants.USER_AUTH_TOKEN);
+		int size = nots.getNotifications().size();
+		Assert.assertNotNull(nots);
+
+		// all user trips
+		List<BasicItinerary> all = userService.getSingleJourneys(Constants.USER_AUTH_TOKEN);
+		if (all != null) {
+			for (BasicItinerary it : all) {
+				userService.deleteSingleJourney(it.getClientId(), Constants.USER_AUTH_TOKEN);
+			}
+		}
+		// all recur trips
+		List<BasicRecurrentJourney> recur = userService.getRecurrentJourneys(Constants.USER_AUTH_TOKEN);
+		if (recur != null) {
+			for (BasicRecurrentJourney it : recur) {
+				userService.deleteRecurrentJourney(it.getClientId(), Constants.USER_AUTH_TOKEN);
+			}
+		}
+
+		
+		SingleJourney request = new SingleJourney();
+		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
+		request.setDepartureTime(new SimpleDateFormat("hh:mmaa").format(new Date()));
+		Position from = new Position();
+		from.setLat("46.066799");
+		from.setLon("11.151796");
+		request.setFrom(from);
+		Position to = new Position("46.066695,11.11889");
+		request.setTo(to);
+		request.setResultsNumber(1);
+		request.setRouteType(RType.fastest);
+		request.setTransportTypes(new TType[]{TType.TRANSIT});
+		List<Itinerary> list = plannerService.planSingleJourney(request, Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(list);
+		Assert.assertTrue(list.size() > 0);
+		
+		Itinerary itinerary = list.get(0);
+		// save
+		BasicItinerary basic = new BasicItinerary();
+		basic.setData(itinerary);
+		basic.setMonitor(true);
+		basic.setName("test");
+		basic.setOriginalFrom(from);
+		basic.setOriginalTo(to);
+		basic = userService.saveSingleJourney(basic, Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(basic);
+		// get single
+		basic = userService.getSingleJourney(basic.getClientId(),Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(basic);
+		Assert.assertTrue(basic.isMonitor());
+		
+		// alert
+		int legIdx = -1;
+		for (int j = 0; j < itinerary.getLeg().size(); j++) {
+			Leg leg = itinerary.getLeg().get(j);
+			if (leg.getTransport().getType().equals(TType.BUS)) {
+				// delay
+				AlertDelay ac = new AlertDelay();
+				commonAttrs(ac);
+				List<Stop> stops = dataService.getStops(leg.getTransport().getAgencyId(),leg.getTransport().getRouteId(), Constants.USER_AUTH_TOKEN);
+				Stop s = stops.get(0);
+				ac.setPosition(new Position(s.getName(), new StopId(leg.getTransport().getAgencyId(), s.getId()), s.getId(), ""+s.getLongitude(), ""+s.getLatitude()));
+				ac.setTransport(leg.getTransport());
+				ac.setDelay(60*1000*10);
+				alertService.sendUserAlert(ac, Constants.USER_AUTH_TOKEN);
+				legIdx = j;
+				break;
+			}
+		}
+		Assert.assertTrue(legIdx >= 0);
+
+		// get single
+		basic = userService.getSingleJourney(basic.getClientId(),Constants.USER_AUTH_TOKEN);
+		Leg leg = basic.getData().getLeg().get(legIdx);
+		Assert.assertTrue(leg.getAlertDelayList() != null && !leg.getAlertDelayList().isEmpty());
+
+		Thread.sleep(2000);
+		nots = communicatorConnector.getNotificationsByApp(since, 0, -1, Constants.USER_AUTH_TOKEN);
+		Assert.assertEquals(1, nots.getNotifications().size()-size);
+		size = nots.getNotifications().size();
+	}
+	
 }

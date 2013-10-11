@@ -21,12 +21,14 @@ package eu.trentorise.smartcampus.mobilityservice;
  */
 public class Constants {
 
-	static final String USER_AUTH_TOKEN = "67c0da56-c1b3-4fc7-8d5a-f2fc5850b2b6";
-	static final String CLIENT_AUTH_TOKEN = "5e601e28-f318-4fe5-80ee-d92e4382d33a";
+	static final String USER_AUTH_TOKEN = "";
+	static final String CLIENT_AUTH_TOKEN = "";
 	static final long CREATOR_ID = -1l;
 	static final String SC_COMMUNITY_ID = "Smartcampus";
 	public static final String OTHER_USER_SOCIAL_ID = "1306";
 	public static final String PRIVATE_COMMUNITY = "mycomm";
 	public static final String SERVER_URL = "https://vas-dev.smartcampuslab.it/core.mobility";
+	public static final String COMMUNICATOR_SRV_URL = "https://vas-dev.smartcampuslab.it/core.communicator";
+	public static final String APPID = "core.mobility";
 
 }
