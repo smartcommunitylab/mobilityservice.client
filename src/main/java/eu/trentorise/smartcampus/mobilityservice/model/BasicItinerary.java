@@ -15,10 +15,14 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.mobilityservice.model;
 
+import java.io.Serializable;
+
 import it.sayservice.platform.smartplanner.data.message.Itinerary;
 import it.sayservice.platform.smartplanner.data.message.Position;
 
-public class BasicItinerary {
+public class BasicItinerary implements Serializable {
+	private static final long serialVersionUID = -8777780170157819354L;
+
 	private String clientId;
 	private Itinerary data;
 	private boolean monitor;

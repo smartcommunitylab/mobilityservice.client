@@ -15,6 +15,7 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.mobilityservice.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -26,8 +27,9 @@ import java.util.List;
  * @author raman
  *
  */
-public class TimeTable {
-	
+public class TimeTable implements Serializable {
+	private static final long serialVersionUID = 6445842728748989021L;
+
 	private List<String> tripIds;
 	private List<String> stops;
 	private List<String> stopsId;

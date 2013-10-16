@@ -15,14 +15,17 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.mobilityservice.model;
 
+import java.io.Serializable;
+
 /**
  * Representation of a single trip data: agency ID, route ID, route names, trip ID,
  * time when the trip passes the associated stop and the real-time delay (if any).
  * @author raman
  *
  */
-public class TripData {
-	
+public class TripData implements Serializable {
+	private static final long serialVersionUID = -6416720376610856881L;
+
 	private String agencyId;
 	private String routeId;
 	private String routeName;

@@ -17,6 +17,7 @@ package eu.trentorise.smartcampus.mobilityservice.model;
 
 import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,8 @@ import java.util.Map;
  * @author raman
  *
  */
-public class Delay {
+public class Delay implements Serializable {
+	private static final long serialVersionUID = 9010927803775341363L;
 
 	Map<CreatorType, String> values = new HashMap<CreatorType, String>(2);
 

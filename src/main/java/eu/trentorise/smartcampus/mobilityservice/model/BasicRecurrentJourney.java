@@ -15,10 +15,13 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.mobilityservice.model;
 
+import java.io.Serializable;
+
 import it.sayservice.platform.smartplanner.data.message.journey.RecurrentJourney;
 
-public class BasicRecurrentJourney {
-	
+public class BasicRecurrentJourney implements Serializable {
+	private static final long serialVersionUID = -1232882611586705748L;
+
 	private String clientId;
 	private RecurrentJourney data;
 	private String name;
