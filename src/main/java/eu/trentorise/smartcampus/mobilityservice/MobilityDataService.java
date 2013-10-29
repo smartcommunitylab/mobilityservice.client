@@ -305,7 +305,13 @@ public class MobilityDataService {
 		list = (List)map.get("delays");
 		tt.setDelays(new ArrayList<Delay>());
 		for (Object o : (List)list.get(0)) {
-			Delay d = JsonUtils.convert(o, Delay.class);
+			Map<String,String> om = JsonUtils.convert(o, Map.class);
+			Delay d = new Delay();
+			d.setValues(new HashMap<CreatorType, String>());
+			if (om != null) {
+				for (String key : om.keySet())
+					d.getValues().put(CreatorType.getAlertType(key), om.get(key));
+			}
 			tt.getDelays().add(d);
 		}
 		return tt;
@@ -357,7 +363,13 @@ public class MobilityDataService {
 		List list = (List)map.get("delays");
 		List<Delay> result = new ArrayList<Delay>();
 		for (Object o : (List)list.get(0)) {
-			Delay d = JsonUtils.convert(o, Delay.class);
+			Map<String,String> om = JsonUtils.convert(o, Map.class);
+			Delay d = new Delay();
+			d.setValues(new HashMap<CreatorType, String>());
+			if (om != null) {
+				for (String key : om.keySet())
+					d.getValues().put(CreatorType.getAlertType(key), om.get(key));
+			}
 			result.add(d);
 		}
 		return result;

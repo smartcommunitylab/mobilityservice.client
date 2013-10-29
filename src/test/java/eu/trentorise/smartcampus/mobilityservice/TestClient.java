@@ -458,5 +458,14 @@ public class TestClient {
 		Assert.assertEquals(1, nots.getNotifications().size()-size);
 		size = nots.getNotifications().size();
 	}
-	
+
+	@Test
+	public void delays() throws SecurityException, MobilityServiceException {
+		List<Delay> delays = dataService.getDelays(dataService.getRoutes("10", Constants.USER_AUTH_TOKEN).get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(delays);
+		for (Delay d : delays) {
+			System.err.print(d.getValues());
+		}
+	}
+
 }
