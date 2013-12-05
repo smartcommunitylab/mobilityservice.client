@@ -56,7 +56,7 @@ public class MobilityDataService {
 	private static final String TRANSIT_DELAYS = "gettransitdelays/%s/%s/%s";
 	private static final String PARKING = "getparkingsbyagency/%s";
 	private static final String ROADINFO = "getroadinfobyagency/%s/%s/%s";
-	private static final String CACHE_STATUS = "getcachestatus";
+	private static final String CACHE_STATUS = "cachestatus";
 	private static final String CACHE_UPDATE = "getcacheupdate/%s/%s";
 
 	private String serviceUrl;
