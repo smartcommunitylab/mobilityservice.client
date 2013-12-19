@@ -49,6 +49,7 @@ public class MobilityDataService {
 
 	private static final String ROUTES = "getroutes/%s";
 	private static final String STOPS = "getstops/%s/%s";
+	private static final String STOPS_GEO = "getstops/%s/%s/%g/%g/%g";
 
 	private static final String TT = "gettimetable/%s/%s/%s";
 	private static final String LIMITED_TT = "getlimitedtimetable/%s/%s/%s";
@@ -164,6 +165,32 @@ public class MobilityDataService {
 		}
 	}
 
+	/**
+	 * Provides information about route stop around a points.
+	 * @param agencyId
+	 * @param routeId
+	 * @param latitude
+	 * @param longitude
+	 * @param radius
+	 * @param token user or client access token 
+	 * @return List of {@link Stop} instances
+	 * @throws MobilityServiceException
+	 */
+	public List<Stop> getStops(String agencyId, String routeId, double latitude, double longitude, double radius, String token) throws MobilityServiceException {
+		if (agencyId == null || routeId == null)
+			throw new MobilityServiceException("Incomplete request parameters");
+		try {
+			agencyId = URLEncoder.encode(agencyId, "utf8");
+			routeId = URLEncoder.encode(routeId, "utf8");
+			String json = RemoteConnector.getJSON(serviceUrl, String.format(STOPS_GEO, agencyId, routeId, latitude, longitude, radius), token);
+			return JsonUtils.toObjectList(json, Stop.class);
+		}catch (SecurityException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new MobilityServiceException(e);
+		}
+	}	
+	
 	/**
 	 * Provides information about the public transport times at the specified
 	 * stop for the period of 1 hour before and 1 hour after.
