@@ -36,12 +36,14 @@ import it.sayservice.platform.smartplanner.data.message.journey.RecurrentJourney
 import it.sayservice.platform.smartplanner.data.message.journey.RecurrentJourneyParameters;
 import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.CompressedTransitTimeTable;
+import it.sayservice.platform.smartplanner.data.message.otpbeans.GeolocalizedStopRequest;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Parking;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Stop;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.StopTime;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -112,6 +114,11 @@ public class TestClient {
 		Assert.assertNotNull(stops);
 		Assert.assertTrue(stops.size() > 0);
 		System.err.println(stops);
+		
+		stops = dataService.getStops("12",routes.get(0).getId().getId(), 46.069525,11.127855,0.005, Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(stops);
+		Assert.assertTrue(stops.size() > 0);
+		System.err.println(stops);		
 	}
 
 	@Test
@@ -160,8 +167,41 @@ public class TestClient {
 			}
 		}
 		
-		
 	}
+	
+	@Test
+	public void partialCache() throws SecurityException, RemoteException {
+		Map<String,Map> in2 = new HashMap<String, Map>();
+		Map<String,Object> in3 = new HashMap<String, Object>();
+		in3.put("version", "0");
+		List<String> l = new ArrayList<String>();
+		l.add("05A");
+		l.add("05R");
+		in3.put("routes", l);
+		in2.put("12", in3);
+		Map<String, CacheUpdateResponse> res = dataService.getPartialCacheStatus(in2, Constants.USER_AUTH_TOKEN);		
+		Assert.assertNotNull(res);
+		Assert.assertTrue(res.size() > 0);
+		
+		System.out.println(res);
+	}
+	
+	@Test
+	public void geolocalizedStops() throws SecurityException, RemoteException, MobilityServiceException {
+		GeolocalizedStopRequest gsr = new GeolocalizedStopRequest();
+		gsr.setAgencyId("12");
+		double coors[] = new double[] {46.070849,11.125546};
+		gsr.setCoordinates(coors);
+		gsr.setPageNumber(0);
+		gsr.setPageSize(10);
+		gsr.setRadius(0.1);
+		
+		List res = dataService.getGeolocalizedStops(gsr, Constants.USER_AUTH_TOKEN);		
+		Assert.assertNotNull(res);
+		Assert.assertTrue(res.size() > 0);
+		
+		System.out.println(res);
+	}	
 
 	@Test
 	public void planning() throws SecurityException, MobilityServiceException {

@@ -19,6 +19,7 @@ import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoad;
 import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
 import it.sayservice.platform.smartplanner.data.message.cache.CacheUpdateResponse;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.CompressedTransitTimeTable;
+import it.sayservice.platform.smartplanner.data.message.otpbeans.GeolocalizedStopRequest;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Parking;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Stop;
@@ -50,6 +51,7 @@ public class MobilityDataService {
 	private static final String ROUTES = "getroutes/%s";
 	private static final String STOPS = "getstops/%s/%s";
 	private static final String STOPS_GEO = "getstops/%s/%s/%g/%g/%g";
+	private static final String GEOLOCALIZED_STOPS = "getgeolocalizedstops";
 
 	private static final String TT = "gettimetable/%s/%s/%s";
 	private static final String LIMITED_TT = "getlimitedtimetable/%s/%s/%s";
@@ -58,6 +60,7 @@ public class MobilityDataService {
 	private static final String PARKING = "getparkingsbyagency/%s";
 	private static final String ROADINFO = "getroadinfobyagency/%s/%s/%s";
 	private static final String CACHE_STATUS = "cachestatus";
+	private static final String PARTIAL_CACHE_STATUS = "partialcachestatus";
 	private static final String CACHE_UPDATE = "getcacheupdate/%s/%s";
 
 	private String serviceUrl;
@@ -190,6 +193,22 @@ public class MobilityDataService {
 			throw new MobilityServiceException(e);
 		}
 	}	
+	
+	/**
+	 * Provides information about agency stops around a points.
+	 * @throws RemoteException 
+	 * @throws SecurityException 
+	 * 
+	 */
+
+	public List<Stop> getGeolocalizedStops(GeolocalizedStopRequest gsr, String token) throws MobilityServiceException, SecurityException, RemoteException {
+		Map<String, CacheUpdateResponse> map = new HashMap<String, CacheUpdateResponse>();
+		String body = JsonUtils.toJSON(gsr);
+		String json = RemoteConnector.postJSON(serviceUrl, GEOLOCALIZED_STOPS, body, token);
+		List result = JsonUtils.toObject(json, List.class);
+		return result;
+	}		
+	
 	
 	/**
 	 * Provides information about the public transport times at the specified
@@ -365,7 +384,31 @@ public class MobilityDataService {
 		}
 		return map;
 	}
+	
 
+	/**
+	 * Retrieve a partial (by routes) status of the cached timetables from the server 
+	 * @param versions current versions (of each agency of interest) to update
+	 * @param token user or client access token
+	 * @return map with agency and the updates of that agency.
+	 * @throws SecurityException
+	 * @throws RemoteException
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, CacheUpdateResponse> getPartialCacheStatus(Map<String,Map> versions, String token) throws SecurityException, RemoteException {
+		Map<String, CacheUpdateResponse> map = new HashMap<String, CacheUpdateResponse>();
+		String body = versions == null || versions.isEmpty() ? "{}" : JsonUtils.toJSON(versions);
+		String json = RemoteConnector.postJSON(serviceUrl, PARTIAL_CACHE_STATUS, body, token);
+		Map<String, Object> jsonMap = JsonUtils.toObject(json, Map.class);
+		if (jsonMap != null) {
+			for (String agency : jsonMap.keySet()) {
+				map.put(agency, JsonUtils.convert(jsonMap.get(agency), CacheUpdateResponse.class));
+			}
+		}
+		return map;
+	}	
+	
+	
 	/**
 	 * Get the compressed timetable used by the timetable cache.
 	 * @param agencyId agency ID of interest
