@@ -211,7 +211,7 @@ public class MobilityDataService {
 		params.put("count", gsr.getPageSize());
 		
 		String json = RemoteConnector.getJSON(serviceUrl, String.format(GEOLOCALIZED_STOPS,gsr.getAgencyId()), token, params);
-		List result = JsonUtils.toObject(json, List.class);
+		List<Stop> result = JsonUtils.toObjectList(json, Stop.class);
 		return result;
 	}		
 	
