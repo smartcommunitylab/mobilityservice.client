@@ -51,7 +51,7 @@ public class MobilityDataService {
 	private static final String ROUTES = "getroutes/%s";
 	private static final String STOPS = "getstops/%s/%s";
 	private static final String STOPS_GEO = "getstops/%s/%s/%g/%g/%g";
-	private static final String GEOLOCALIZED_STOPS = "getgeolocalizedstops";
+	private static final String GEOLOCALIZED_STOPS = "geostops/%s";
 
 	private static final String TT = "gettimetable/%s/%s/%s";
 	private static final String LIMITED_TT = "getlimitedtimetable/%s/%s/%s";
@@ -203,8 +203,14 @@ public class MobilityDataService {
 
 	public List<Stop> getGeolocalizedStops(GeolocalizedStopRequest gsr, String token) throws MobilityServiceException, SecurityException, RemoteException {
 		Map<String, CacheUpdateResponse> map = new HashMap<String, CacheUpdateResponse>();
-		String body = JsonUtils.toJSON(gsr);
-		String json = RemoteConnector.postJSON(serviceUrl, GEOLOCALIZED_STOPS, body, token);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("lat", gsr.getCoordinates()[0]);
+		params.put("lng", gsr.getCoordinates()[1]);
+		params.put("radius", gsr.getRadius());
+		params.put("page", gsr.getPageNumber());
+		params.put("count", gsr.getPageSize());
+		
+		String json = RemoteConnector.getJSON(serviceUrl, String.format(GEOLOCALIZED_STOPS,gsr.getAgencyId()), token, params);
 		List result = JsonUtils.toObject(json, List.class);
 		return result;
 	}		
