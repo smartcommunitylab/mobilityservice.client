@@ -58,6 +58,7 @@ public class MobilityDataService {
 	private static final String TRANSIT_TIMES = "gettransittimes/%s/%s/%s";
 	private static final String TRANSIT_DELAYS = "gettransitdelays/%s/%s/%s";
 	private static final String PARKING = "getparkingsbyagency/%s";
+	private static final String BIKE_SHARING = "getbikesharingbyagency/%s";
 	private static final String ROADINFO = "getroadinfobyagency/%s/%s/%s";
 	private static final String CACHE_STATUS = "cachestatus";
 	private static final String PARTIAL_CACHE_STATUS = "partialcachestatus";
@@ -97,6 +98,29 @@ public class MobilityDataService {
 		}
 
 	}
+	
+	/**
+	 * Provides (possibly real-time) info about bike sharing for the specified agency ID.
+	 * @param agencyId
+	 * @param token user or client access token 
+	 * @return List of {@link Parking} instances
+	 * @throws MobilityServiceException
+	 */
+	public List<Parking> getBikeSharings(String agencyId, String token) throws MobilityServiceException {
+		if (agencyId == null)
+			throw new MobilityServiceException("Incomplete request parameters");
+		try {
+			agencyId = URLEncoder.encode(agencyId, "utf8");
+			String json = RemoteConnector.getJSON(serviceUrl, String.format(BIKE_SHARING, agencyId), token);
+			return JsonUtils.toObjectList(json,Parking.class);
+		}catch (SecurityException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new MobilityServiceException(e);
+		}
+
+	}	
+	
 
 	/**
 	 * Provides real time information about road works and deviations for 
