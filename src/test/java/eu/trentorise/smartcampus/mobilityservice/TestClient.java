@@ -91,11 +91,20 @@ public class TestClient {
 		Assert.assertTrue(parkings.size() > 0);
 		System.err.println(parkings);
 	}
+
+	@Test
+	public void bikeSharing() throws SecurityException, MobilityServiceException {
+		// get parkings
+		List<Parking> parkings = dataService.getBikeSharings("BIKE_SHARING_TOBIKE_ROVERETO",Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(parkings);
+		Assert.assertTrue(parkings.size() > 0);
+		System.err.println(parkings);
+	}
 	
 	@Test
 	public void roadData() throws SecurityException, MobilityServiceException {
 		// get road information
-		List<AlertRoad> roadInfos = dataService.getRoadInfo("COMUNE_DI_ROVERETO", System.currentTimeMillis(), System.currentTimeMillis()+100*60*60*24*3,Constants.USER_AUTH_TOKEN);
+		List<AlertRoad> roadInfos = dataService.getRoadInfo("COMUNE_DI_ROVERETO", System.currentTimeMillis(), System.currentTimeMillis()+1000*60*60*24*30,Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(roadInfos);
 		Assert.assertTrue(roadInfos.size() > 0);
 		System.err.println(roadInfos);
@@ -211,30 +220,30 @@ public class TestClient {
 		request.setDate("08/30/2013");
 		request.setDepartureTime("04:26PM");//new SimpleDateFormat("hh:mmaa").format(new Date()));
 		Position from = new Position();
-		from.setLat("46.0699898");
-		from.setLon("11.150353");
+		from.setLat("46.06999");
+		from.setLon("11.1508176224227");
 		request.setFrom(from);
-		Position to = new Position("46.0746659,11.1216972");
+		Position to = new Position("46.215436,11.120786");
 		request.setTo(to);
 		request.setResultsNumber(1);
 		request.setRouteType(RType.fastest);
 		request.setTransportTypes(new TType[]{TType.TRANSIT, TType.CAR, TType.WALK});
-		List<Itinerary> list = plannerService.planSingleJourney(request, Constants.USER_AUTH_TOKEN);
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		System.err.println(list);
+//		List<Itinerary> list = plannerService.planSingleJourney(request, Constants.USER_AUTH_TOKEN);
+//		Assert.assertNotNull(list);
+//		Assert.assertTrue(list.size() > 0);
+//		System.err.println(list);
 		
 		// recurrent
 		RecurrentJourneyParameters recRequest = new RecurrentJourneyParameters();
 		recRequest.setFrom(from);
 		recRequest.setTo(to);
 		recRequest.setFromDate(System.currentTimeMillis());
-		recRequest.setInterval(1000*60*60);
+		recRequest.setInterval(1000*60*60*2);
 		recRequest.setRecurrence(Arrays.asList(new Integer[]{1,2,3,4,5,6,7}));
 		recRequest.setResultsNumber(3);
 		recRequest.setRouteType(RType.fastest);
 		recRequest.setTime(new SimpleDateFormat("hh:mmaa").format(new Date()));
-		recRequest.setToDate(System.currentTimeMillis()+1000*60*60*24*7);
+		recRequest.setToDate(System.currentTimeMillis()+1000*60*60*24*100);
 		recRequest.setTransportTypes(new TType[]{TType.TRANSIT, TType.BICYCLE});
 		RecurrentJourney res = plannerService.planRecurrentJourney(recRequest, Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(res);

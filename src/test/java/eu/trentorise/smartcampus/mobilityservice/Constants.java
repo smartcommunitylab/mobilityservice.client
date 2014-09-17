@@ -27,8 +27,8 @@ public class Constants {
 	static final String SC_COMMUNITY_ID = "Smartcampus";
 	public static final String OTHER_USER_SOCIAL_ID = "1306";
 	public static final String PRIVATE_COMMUNITY = "mycomm";
-	public static final String SERVER_URL = "https://vas-dev.smartcampuslab.it/core.mobility";
-	public static final String COMMUNICATOR_SRV_URL = "https://vas-dev.smartcampuslab.it/core.communicator";
+	public static final String SERVER_URL = "https://tn.smartcampuslab.it/core.mobility";
+	public static final String COMMUNICATOR_SRV_URL = "https://tn.smartcampuslab.it/core.communicator";
 	public static final String APPID = "core.mobility";
 
 }
