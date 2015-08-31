@@ -25,6 +25,9 @@ import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Stop;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.StopTime;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,6 +51,8 @@ import eu.trentorise.smartcampus.network.RemoteException;
  */
 public class MobilityDataService {
 
+	private static final String BEARER = "Bearer ";
+	private static final String AUTHORIZATION = "Authorization";
 	private static final String ROUTES = "getroutes/%s";
 	private static final String STOPS = "getstops/%s/%s";
 	private static final String STOPS_GEO = "getstops/%s/%s/%g/%g/%g";
@@ -63,6 +68,9 @@ public class MobilityDataService {
 	private static final String CACHE_STATUS = "cachestatus";
 	private static final String PARTIAL_CACHE_STATUS = "partialcachestatus";
 	private static final String CACHE_UPDATE = "getcacheupdate/%s/%s";
+	
+	private static final String ROUTES_DB = "routesDB/%s";
+	private static final String VERSIONS = "versions";
 
 	private String serviceUrl;
 
@@ -505,4 +513,51 @@ public class MobilityDataService {
 			throw new MobilityServiceException(e);
 		}
 	}
+	
+	
+	/**
+	 * Return the zipped DB for a specified application Id
+	 * @param appId
+	 * @param token
+	 * @return
+	 * @throws MobilityServiceException
+	 */
+	public InputStream getRoutesDB(String appId, String token) throws MobilityServiceException {
+		if (appId == null) {
+			throw new MobilityServiceException("Incomplete request parameters");
+		}
+		try {
+		URL url = new URL(serviceUrl + String.format(ROUTES_DB, appId));
+
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("GET");
+		conn.setRequestProperty(AUTHORIZATION, BEARER + token);
+		conn.setDoOutput(true);
+		conn.setDoInput(true);
+
+		return conn.getInputStream();
+		} catch (Exception e) {
+			throw new MobilityServiceException(e);
+		}
+
+	}	
+	
+	/**
+	 * Return the cache versions for the various agency Ids
+	 * @param token
+	 * @return
+	 * @throws MobilityServiceException
+	 */
+	public Map<String, Long> getVersions(String token) throws MobilityServiceException {
+		try {
+			String json = RemoteConnector.getJSON(serviceUrl, VERSIONS, token);
+			return JsonUtils.toObject(json, Map.class);
+		}catch (SecurityException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new MobilityServiceException(e);
+		}
+
+	}	
+	
 }
