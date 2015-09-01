@@ -61,6 +61,12 @@
 		</plugins>
 	</build>
 
+  <repositories>
+    <repository>
+      <id>SmartCampus</id>
+      <url>http://repository.smartcommunitylab.it/content/groups/public</url>
+    </repository>
+  </repositories>
 
 
 </project>
