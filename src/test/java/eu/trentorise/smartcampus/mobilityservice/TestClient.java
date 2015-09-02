@@ -42,6 +42,12 @@ import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Stop;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.StopTime;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.ZipInputStream;
 
 import junit.framework.Assert;
 
@@ -63,6 +70,7 @@ import eu.trentorise.smartcampus.mobilityservice.model.BasicRecurrentJourney;
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
+import eu.trentorise.smartcampus.network.JsonUtils;
 import eu.trentorise.smartcampus.network.RemoteConnector;
 import eu.trentorise.smartcampus.network.RemoteConnector.CLIENT_TYPE;
 import eu.trentorise.smartcampus.network.RemoteException;
@@ -86,10 +94,12 @@ public class TestClient {
 	@Test
 	public void parkings() throws SecurityException, MobilityServiceException {
 		// get parkings
-		List<Parking> parkings = dataService.getParkings("COMUNE_DI_TRENTO",Constants.USER_AUTH_TOKEN);
+		List<Parking> parkings = dataService.getParkings("COMUNE_DI_ROVERETO",Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(parkings);
 		Assert.assertTrue(parkings.size() > 0);
-		System.err.println(parkings);
+		for (Parking p : parkings) {
+			System.err.println(p.getName()+":"+p.isMonitored());
+		}
 	}
 
 	@Test
@@ -98,7 +108,7 @@ public class TestClient {
 		List<Parking> parkings = dataService.getBikeSharings("BIKE_SHARING_TOBIKE_ROVERETO",Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(parkings);
 		Assert.assertTrue(parkings.size() > 0);
-		System.err.println(parkings);
+		System.err.println(JsonUtils.toJSON(parkings));
 	}
 	
 	@Test
@@ -217,18 +227,18 @@ public class TestClient {
 		// single
 		SingleJourney request = new SingleJourney();
 //		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
-		request.setDate("08/30/2013");
-		request.setDepartureTime("04:26PM");//new SimpleDateFormat("hh:mmaa").format(new Date()));
-		Position from = new Position();
-		from.setLat("46.06999");
-		from.setLon("11.1508176224227");
+		request.setDate("01/22/2015");
+		request.setDepartureTime("07:30AM");
+//		request.setDepartureTime(new SimpleDateFormat("hh:mmaa").format(new Date()));
+		Position from = new Position("46.070519,11.150704");
 		request.setFrom(from);
-		Position to = new Position("46.215436,11.120786");
+		Position to = new Position("45.888927,11.040570");
 		request.setTo(to);
 		request.setResultsNumber(1);
 		request.setRouteType(RType.fastest);
-		request.setTransportTypes(new TType[]{TType.TRANSIT, TType.CAR, TType.WALK});
-//		List<Itinerary> list = plannerService.planSingleJourney(request, Constants.USER_AUTH_TOKEN);
+		request.setTransportTypes(new TType[]{TType.CAR});
+		List<Itinerary> list = plannerService.planSingleJourney(request, Constants.USER_AUTH_TOKEN);
+		for (Itinerary i : list) System.err.println(JsonUtils.toJSON(i));
 //		Assert.assertNotNull(list);
 //		Assert.assertTrue(list.size() > 0);
 //		System.err.println(list);
@@ -245,10 +255,10 @@ public class TestClient {
 		recRequest.setTime(new SimpleDateFormat("hh:mmaa").format(new Date()));
 		recRequest.setToDate(System.currentTimeMillis()+1000*60*60*24*100);
 		recRequest.setTransportTypes(new TType[]{TType.TRANSIT, TType.BICYCLE});
-		RecurrentJourney res = plannerService.planRecurrentJourney(recRequest, Constants.USER_AUTH_TOKEN);
-		Assert.assertNotNull(res);
-		Assert.assertTrue(res.getLegs().size() > 0);
-		System.err.println(res);
+//		RecurrentJourney res = plannerService.planRecurrentJourney(recRequest, Constants.USER_AUTH_TOKEN);
+//		Assert.assertNotNull(res);
+//		Assert.assertTrue(res.getLegs().size() > 0);
+//		System.err.println(JsonUtils.toJSON(res));
 	}
 
 	@Test
@@ -517,4 +527,47 @@ public class TestClient {
 		}
 	}
 
+	@Test
+	public void stops() throws SecurityException, MobilityServiceException {
+		//get stops information
+		List<Stop> stops = dataService.getStops("5","BV_R1_R", Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(stops);
+		Assert.assertTrue(stops.size() > 0);
+		System.err.println(stops);
+	}
+
+	@Test
+	public void versions() throws SecurityException, MobilityServiceException {
+		//get stops information
+		Map<String, Long> versions = dataService.getVersions(Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(versions);
+		Assert.assertTrue(versions.size() > 0);
+		System.err.println(versions);
+	}
+
+	@Test
+	public void db() throws SecurityException, MobilityServiceException {
+		//get stops information
+		InputStream is = dataService.getRoutesDB("trento", Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(is);
+		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is)); 
+		try {
+			if (zis.getNextEntry() != null) {
+				// Open the empty db as the output stream
+				OutputStream myOutput = new ByteArrayOutputStream();
+				// transfer bytes from the inputfile to the outputfile
+				byte[] buffer = new byte[1024];
+				int length;
+				while ((length = zis.read(buffer)) > 0) {
+					myOutput.write(buffer, 0, length);
+				}
+				// Close the streams
+				myOutput.flush();
+				myOutput.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}	
+	
 }

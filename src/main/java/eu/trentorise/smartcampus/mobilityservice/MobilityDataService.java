@@ -532,7 +532,6 @@ public class MobilityDataService {
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod("GET");
 		conn.setRequestProperty(AUTHORIZATION, BEARER + token);
-		conn.setDoOutput(true);
 		conn.setDoInput(true);
 
 		return conn.getInputStream();
