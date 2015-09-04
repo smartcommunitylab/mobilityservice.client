@@ -31,6 +31,7 @@ public class TimeTable implements Serializable {
 	private static final long serialVersionUID = 6445842728748989021L;
 
 	private List<String> tripIds;
+	private List<String> routeIds;
 	private List<String> stops;
 	private List<String> stopsId;
 	private List<List<String>> times;
@@ -95,4 +96,17 @@ public class TimeTable implements Serializable {
 	public void setDelays(List<Delay> delays) {
 		this.delays = delays;
 	}
+	/**
+	 * @return the routeIds
+	 */
+	public List<String> getRouteIds() {
+		return routeIds;
+	}
+	/**
+	 * @param routeIds the routeIds to set
+	 */
+	public void setRouteIds(List<String> routeIds) {
+		this.routeIds = routeIds;
+	}
+	
 }
