@@ -158,52 +158,17 @@ public class TestClient {
 		System.err.println(stopTrips);
 
 		// timetable for the route
-		TimeTable tt = dataService.getTimeTable(routes.get(0).getId().getId(), System.currentTimeMillis(), Constants.USER_AUTH_TOKEN);
+		TimeTable tt = dataService.getTimeTable("12", routes.get(0).getId().getId(), System.currentTimeMillis(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(tt);
 		System.err.println(tt);
 
 		// delays for route
-		List<Delay> delays = dataService.getDelays(routes.get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
+		List<Delay> delays = dataService.getDelays("12", routes.get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(delays);
 		System.err.println(delays);
 	}
-	
-	@Test
-	public void cache() throws SecurityException, RemoteException {
-		Map<String,String> in = new HashMap<String, String>();
-		in.put("10", "0");
-		in.put("5", "0");
-		
-		Map<String, CacheUpdateResponse> res = dataService.getCacheStatus(in, Constants.USER_AUTH_TOKEN);
-		Assert.assertNotNull(res);
-		Assert.assertTrue(res.size() > 0);
-		for (String agency : res.keySet()) {
-			System.err.println(res.get(agency));
-			for (String s : res.get(agency).getAdded()) {
-				CompressedTransitTimeTable ctt = dataService.getCachedTimetable(agency, s, Constants.USER_AUTH_TOKEN);
-				Assert.assertNotNull(ctt);
-				System.err.println(ctt);
-			}
-		}
-		
-	}
-	
-	@Test
-	public void partialCache() throws SecurityException, RemoteException {
-		Map<String,Map> in2 = new HashMap<String, Map>();
-		Map<String,Object> in3 = new HashMap<String, Object>();
-		in3.put("version", "0");
-		List<String> l = new ArrayList<String>();
-		l.add("05A");
-		l.add("05R");
-		in3.put("routes", l);
-		in2.put("12", in3);
-		Map<String, CacheUpdateResponse> res = dataService.getPartialCacheStatus(in2, Constants.USER_AUTH_TOKEN);		
-		Assert.assertNotNull(res);
-		Assert.assertTrue(res.size() > 0);
-		
-		System.out.println(res);
-	}
+
+
 	
 	@Test
 	public void geolocalizedStops() throws SecurityException, RemoteException, MobilityServiceException {
@@ -520,7 +485,7 @@ public class TestClient {
 
 	@Test
 	public void delays() throws SecurityException, MobilityServiceException {
-		List<Delay> delays = dataService.getDelays(dataService.getRoutes("10", Constants.USER_AUTH_TOKEN).get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
+		List<Delay> delays = dataService.getDelays("10", dataService.getRoutes("10", Constants.USER_AUTH_TOKEN).get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(delays);
 		for (Delay d : delays) {
 			System.err.print(d.getValues());

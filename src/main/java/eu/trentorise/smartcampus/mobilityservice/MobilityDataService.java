@@ -60,8 +60,8 @@ public class MobilityDataService {
 
 	private static final String TT = "gettimetable/%s/%s/%s";
 	private static final String LIMITED_TT = "getlimitedtimetable/%s/%s/%s";
-	private static final String TRANSIT_TIMES = "gettransittimes/%s/%s/%s";
-	private static final String TRANSIT_DELAYS = "gettransitdelays/%s/%s/%s";
+	private static final String TRANSIT_TIMES = "gettransittimes/%s/%s/%s/%s";
+	private static final String TRANSIT_DELAYS = "gettransitdelays/%s/%s/%s/%s";
 	private static final String PARKING = "getparkingsbyagency/%s";
 	private static final String BIKE_SHARING = "getbikesharingbyagency/%s";
 	private static final String ROADINFO = "getroadinfobyagency/%s/%s/%s";
@@ -341,13 +341,14 @@ public class MobilityDataService {
 	/**
 	 * Get public transport timetable (with real time delays if any) for
 	 * the specified route and date.
+	 * @param agencyId
 	 * @param routeId
 	 * @param when
 	 * @param token user or client access token 
 	 * @return {@link TimeTable} instance
 	 * @throws MobilityServiceException
 	 */
-	public TimeTable getTimeTable(String routeId, long when, String token) throws MobilityServiceException {
+	public TimeTable getTimeTable(String agencyId, String routeId, long when, String token) throws MobilityServiceException {
 		if (routeId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
@@ -363,7 +364,7 @@ public class MobilityDataService {
 			cal.set(Calendar.SECOND, 59);
 			cal.set(Calendar.MILLISECOND, 999);
 			long to = cal.getTimeInMillis();
-			String json = RemoteConnector.getJSON(serviceUrl, String.format(TRANSIT_TIMES, routeId, from, to), token);
+			String json = RemoteConnector.getJSON(serviceUrl, String.format(TRANSIT_TIMES, agencyId, routeId, from, to), token);
 			return toTimetable(json);
 		}catch (SecurityException e) {
 			throw e;
@@ -400,66 +401,6 @@ public class MobilityDataService {
 		}
 		return tt;
 	}
-
-	/**
-	 * Retrieve the status of the cached timetables from the server 
-	 * @param versions current versions (of each agency of interest) to update
-	 * @param token user or client access token
-	 * @return map with agency and the updates of that agency.
-	 * @throws SecurityException
-	 * @throws RemoteException
-	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, CacheUpdateResponse> getCacheStatus(Map<String,String> versions, String token) throws SecurityException, RemoteException {
-		Map<String, CacheUpdateResponse> map = new HashMap<String, CacheUpdateResponse>();
-		String body = versions == null || versions.isEmpty() ? "{}" : JsonUtils.toJSON(versions);
-		String json = RemoteConnector.postJSON(serviceUrl, CACHE_STATUS, body, token);
-		Map<String, Object> jsonMap = JsonUtils.toObject(json, Map.class);
-		if (jsonMap != null) {
-			for (String agency : jsonMap.keySet()) {
-				map.put(agency, JsonUtils.convert(jsonMap.get(agency), CacheUpdateResponse.class));
-			}
-		}
-		return map;
-	}
-	
-
-	/**
-	 * Retrieve a partial (by routes) status of the cached timetables from the server 
-	 * @param versions current versions (of each agency of interest) to update
-	 * @param token user or client access token
-	 * @return map with agency and the updates of that agency.
-	 * @throws SecurityException
-	 * @throws RemoteException
-	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, CacheUpdateResponse> getPartialCacheStatus(Map<String,Map> versions, String token) throws SecurityException, RemoteException {
-		Map<String, CacheUpdateResponse> map = new HashMap<String, CacheUpdateResponse>();
-		String body = versions == null || versions.isEmpty() ? "{}" : JsonUtils.toJSON(versions);
-		String json = RemoteConnector.postJSON(serviceUrl, PARTIAL_CACHE_STATUS, body, token);
-		Map<String, Object> jsonMap = JsonUtils.toObject(json, Map.class);
-		if (jsonMap != null) {
-			for (String agency : jsonMap.keySet()) {
-				map.put(agency, JsonUtils.convert(jsonMap.get(agency), CacheUpdateResponse.class));
-			}
-		}
-		return map;
-	}	
-	
-	
-	/**
-	 * Get the compressed timetable used by the timetable cache.
-	 * @param agencyId agency ID of interest
-	 * @param ttId timetable ID as returned by the status message
-	 * @param token user or client access token
-	 * @return {@link CompressedTransitTimeTable} instance
-	 * @throws SecurityException
-	 * @throws RemoteException
-	 */
-	public CompressedTransitTimeTable getCachedTimetable(String agencyId, String ttId, String token) throws SecurityException, RemoteException {
-		String json = RemoteConnector.getJSON(serviceUrl, String.format(CACHE_UPDATE, agencyId, ttId), token);
-		return JsonUtils.toObject(json, CompressedTransitTimeTable.class);
-	}
 	
 	/**
 	 * @param json
@@ -485,12 +426,13 @@ public class MobilityDataService {
 
 	/**
 	 * Provides information about the current delays for the specified route
+	 * @param agencyId
 	 * @param routeId
 	 * @param token
 	 * @return
 	 * @throws MobilityServiceException
 	 */
-	public List<Delay> getDelays(String routeId, String token) throws MobilityServiceException {
+	public List<Delay> getDelays(String agencyId, String routeId, String token) throws MobilityServiceException {
 		if (routeId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
@@ -505,7 +447,7 @@ public class MobilityDataService {
 			cal.set(Calendar.SECOND, 59);
 			cal.set(Calendar.MILLISECOND, 999);
 			long to = cal.getTimeInMillis();
-			String json = RemoteConnector.getJSON(serviceUrl, String.format(TRANSIT_DELAYS, routeId, from, to), token);
+			String json = RemoteConnector.getJSON(serviceUrl, String.format(TRANSIT_DELAYS, agencyId, routeId, from, to), token);
 			return toDelays(json);
 		}catch (SecurityException e) {
 			throw e;
