@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
+import eu.trentorise.smartcampus.mobilityservice.model.TaxiContact;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
 import eu.trentorise.smartcampus.network.JsonUtils;
@@ -71,6 +72,7 @@ public class MobilityDataService {
 	
 	private static final String ROUTES_DB = "routesDB/%s";
 	private static final String VERSIONS = "versions";
+	private static final String TAXIINFO = "getTaxiAgencyContacts/";
 
 	private String serviceUrl;
 
@@ -493,6 +495,24 @@ public class MobilityDataService {
 		try {
 			String json = RemoteConnector.getJSON(serviceUrl, VERSIONS, token);
 			return JsonUtils.toObject(json, Map.class);
+		}catch (SecurityException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new MobilityServiceException(e);
+		}
+
+	}	
+
+	/**
+	 * Return the taxi information
+	 * @param token
+	 * @return
+	 * @throws MobilityServiceException
+	 */
+	public List<TaxiContact> getTaxiAgencyContacts(String token) throws MobilityServiceException {
+		try {
+			String json = RemoteConnector.getJSON(serviceUrl, TAXIINFO, token);
+			return JsonUtils.toObjectList(json, TaxiContact.class);
 		}catch (SecurityException e) {
 			throw e;
 		} catch (Exception e) {

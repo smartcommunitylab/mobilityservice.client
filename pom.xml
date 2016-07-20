@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>it.sayservice.platform.smartplanner</groupId>
 			<artifactId>smartplanner-beans</artifactId>
-			<version>1.1.6</version>
+			<version>1.1.12</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -63,7 +63,7 @@
 
   <repositories>
     <repository>
-      <id>SmartCampus</id>
+      <id>SmartCommunity</id>
       <url>http://repository.smartcommunitylab.it/content/groups/public</url>
     </repository>
   </repositories>

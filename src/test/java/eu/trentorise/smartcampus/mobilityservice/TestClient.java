@@ -15,6 +15,7 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.mobilityservice;
 
+import it.sayservice.platform.smartplanner.data.message.EffectType;
 import it.sayservice.platform.smartplanner.data.message.Itinerary;
 import it.sayservice.platform.smartplanner.data.message.Leg;
 import it.sayservice.platform.smartplanner.data.message.Position;
@@ -31,11 +32,9 @@ import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoad;
 import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoadType;
 import it.sayservice.platform.smartplanner.data.message.alerts.AlertStrike;
 import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
-import it.sayservice.platform.smartplanner.data.message.cache.CacheUpdateResponse;
 import it.sayservice.platform.smartplanner.data.message.journey.RecurrentJourney;
 import it.sayservice.platform.smartplanner.data.message.journey.RecurrentJourneyParameters;
 import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
-import it.sayservice.platform.smartplanner.data.message.otpbeans.CompressedTransitTimeTable;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.GeolocalizedStopRequest;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Parking;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
@@ -44,15 +43,12 @@ import it.sayservice.platform.smartplanner.data.message.otpbeans.StopTime;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -68,6 +64,7 @@ import eu.trentorise.smartcampus.communicator.model.Notifications;
 import eu.trentorise.smartcampus.mobilityservice.model.BasicItinerary;
 import eu.trentorise.smartcampus.mobilityservice.model.BasicRecurrentJourney;
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
+import eu.trentorise.smartcampus.mobilityservice.model.TaxiContact;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
 import eu.trentorise.smartcampus.network.JsonUtils;
@@ -192,12 +189,12 @@ public class TestClient {
 		// single
 		SingleJourney request = new SingleJourney();
 //		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
-		request.setDate("01/22/2015");
-		request.setDepartureTime("07:30AM");
+		request.setDate("06/14/2016");
+		request.setDepartureTime("09:20AM");
 //		request.setDepartureTime(new SimpleDateFormat("hh:mmaa").format(new Date()));
-		Position from = new Position("46.070519,11.150704");
+		Position from = new Position("45.902402,11.033251");
 		request.setFrom(from);
-		Position to = new Position("45.888927,11.040570");
+		Position to = new Position("45.87142,11.035045");
 		request.setTo(to);
 		request.setResultsNumber(1);
 		request.setRouteType(RType.fastest);
@@ -296,7 +293,7 @@ public class TestClient {
 		a.setCreatorId("1");
 		a.setCreatorType(CreatorType.USER);
 		a.setDescription("description");
-		a.setEffect("effect");
+		a.setEffect(EffectType.OTHER_EFFECT);
 		a.setEntity(null);
 		a.setFrom(System.currentTimeMillis());
 		a.setTo(System.currentTimeMillis()+1000*60*5);
@@ -534,5 +531,13 @@ public class TestClient {
 			e.printStackTrace();
 		}
 	}	
-	
+
+	@Test
+	public void taxiInfo() throws SecurityException, MobilityServiceException {
+		List<TaxiContact> infos = dataService.getTaxiAgencyContacts(Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(infos);
+		Assert.assertTrue(infos.size() > 0);
+		System.err.println(infos);
+	}
+
 }
