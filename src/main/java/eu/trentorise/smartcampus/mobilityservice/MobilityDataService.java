@@ -71,6 +71,7 @@ public class MobilityDataService {
 	private static final String CACHE_UPDATE = "getcacheupdate/%s/%s";
 	
 	private static final String ROUTES_DB = "routesDB/%s";
+	private static final String EXTENDED_ROUTES_DB = "routesDB/%s/extended";
 	private static final String VERSIONS = "versions";
 	private static final String TAXIINFO = "getTaxiAgencyContacts/";
 
@@ -484,6 +485,34 @@ public class MobilityDataService {
 		}
 
 	}	
+	
+	/**
+	 * Return the zipped extended DB for a specified application Id
+	 * @param appId
+	 * @param token
+	 * @return
+	 * @throws MobilityServiceException
+	 */
+	public InputStream getExtendedRoutesDB(String appId, String token) throws MobilityServiceException {
+		if (appId == null) {
+			throw new MobilityServiceException("Incomplete request parameters");
+		}
+		try {
+		URL url = new URL(serviceUrl + String.format(EXTENDED_ROUTES_DB, appId));
+
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("GET");
+		conn.setRequestProperty(AUTHORIZATION, BEARER + token);
+		conn.setDoOutput(true);
+		conn.setDoInput(true);
+
+		return conn.getInputStream();
+		} catch (Exception e) {
+			throw new MobilityServiceException(e);
+		}
+
+	}		
+	
 	
 	/**
 	 * Return the cache versions for the various agency Ids
