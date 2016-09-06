@@ -99,7 +99,7 @@ public class MobilityDataService {
 		if (agencyId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			agencyId = URLEncoder.encode(agencyId, "utf8");
+//			agencyId = URLEncoder.encode(agencyId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(PARKING, agencyId), token);
 			return JsonUtils.toObjectList(json,Parking.class);
 		}catch (SecurityException e) {
@@ -121,7 +121,7 @@ public class MobilityDataService {
 		if (agencyId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			agencyId = URLEncoder.encode(agencyId, "utf8");
+//			agencyId = URLEncoder.encode(agencyId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(BIKE_SHARING, agencyId), token);
 			return JsonUtils.toObjectList(json,Parking.class);
 		}catch (SecurityException e) {
@@ -149,7 +149,7 @@ public class MobilityDataService {
 		if (from == null) from = System.currentTimeMillis();
 		if (to == null || to < from) to = from+1000*60*60*24;
 		try {
-			agencyId = URLEncoder.encode(agencyId, "utf8");
+//			agencyId = URLEncoder.encode(agencyId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(ROADINFO, agencyId, from, to), token);
 			return JsonUtils.toObjectList(json, AlertRoad.class);
 		}catch (SecurityException e) {
@@ -170,7 +170,7 @@ public class MobilityDataService {
 		if (agencyId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			agencyId = URLEncoder.encode(agencyId, "utf8");
+//			agencyId = URLEncoder.encode(agencyId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(ROUTES, agencyId), token);
 			return JsonUtils.toObjectList(json, Route.class);
 		}catch (SecurityException e) {
@@ -192,8 +192,8 @@ public class MobilityDataService {
 		if (agencyId == null || routeId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			agencyId = URLEncoder.encode(agencyId, "utf8");
-			routeId = URLEncoder.encode(routeId, "utf8");
+//			agencyId = URLEncoder.encode(agencyId, "utf8");
+//			routeId = URLEncoder.encode(routeId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(STOPS, agencyId, routeId), token);
 			return JsonUtils.toObjectList(json, Stop.class);
 		}catch (SecurityException e) {
@@ -218,8 +218,8 @@ public class MobilityDataService {
 		if (agencyId == null || routeId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			agencyId = URLEncoder.encode(agencyId, "utf8");
-			routeId = URLEncoder.encode(routeId, "utf8");
+//			agencyId = URLEncoder.encode(agencyId, "utf8");
+//			routeId = URLEncoder.encode(routeId, "utf8");
 			String json = RemoteConnector.getJSON(serviceUrl, String.format(STOPS_GEO, agencyId, routeId, latitude, longitude, radius), token);
 			return JsonUtils.toObjectList(json, Stop.class);
 		}catch (SecurityException e) {
@@ -355,7 +355,7 @@ public class MobilityDataService {
 		if (routeId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			routeId = URLEncoder.encode(routeId, "utf8");
+//			routeId = URLEncoder.encode(routeId, "utf8");
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(when);
 			cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -439,7 +439,7 @@ public class MobilityDataService {
 		if (routeId == null)
 			throw new MobilityServiceException("Incomplete request parameters");
 		try {
-			routeId = URLEncoder.encode(routeId, "utf8");
+//			routeId = URLEncoder.encode(routeId, "utf8");
 			Calendar cal = Calendar.getInstance();
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);

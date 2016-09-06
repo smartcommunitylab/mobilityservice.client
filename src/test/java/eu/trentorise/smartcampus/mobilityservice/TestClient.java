@@ -126,12 +126,12 @@ public class TestClient {
 		System.err.println(routes);
 		
 		//get stops information
-		List<Stop> stops = dataService.getStops("12",routes.get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
+		List<Stop> stops = dataService.getStops("12",routes.get(1).getId().getId(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(stops);
 		Assert.assertTrue(stops.size() > 0);
 		System.err.println(stops);
 		
-		stops = dataService.getStops("12",routes.get(0).getId().getId(), 46.069525,11.127855,0.005, Constants.USER_AUTH_TOKEN);
+		stops = dataService.getStops("12",routes.get(0).getId().getId(), 46.069525,11.127855,0.5, Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(stops);
 		Assert.assertTrue(stops.size() > 0);
 		System.err.println(stops);		
@@ -155,12 +155,12 @@ public class TestClient {
 		System.err.println(stopTrips);
 
 		// timetable for the route
-		TimeTable tt = dataService.getTimeTable("12", routes.get(0).getId().getId(), System.currentTimeMillis(), Constants.USER_AUTH_TOKEN);
+		TimeTable tt = dataService.getTimeTable("12","%20AC", System.currentTimeMillis(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(tt);
 		System.err.println(tt);
 
 		// delays for route
-		List<Delay> delays = dataService.getDelays("12", routes.get(0).getId().getId(), Constants.USER_AUTH_TOKEN);
+		List<Delay> delays = dataService.getDelays("12", routes.get(5).getId().getId(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(delays);
 		System.err.println(delays);
 	}
@@ -188,8 +188,8 @@ public class TestClient {
 	public void planning() throws SecurityException, MobilityServiceException {
 		// single
 		SingleJourney request = new SingleJourney();
-//		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
-		request.setDate("06/14/2016");
+		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
+//		request.setDate("06/14/2016");
 		request.setDepartureTime("09:20AM");
 //		request.setDepartureTime(new SimpleDateFormat("hh:mmaa").format(new Date()));
 		Position from = new Position("45.902402,11.033251");
