@@ -18,7 +18,6 @@ package eu.trentorise.smartcampus.mobilityservice;
 import it.sayservice.platform.smartplanner.data.message.alerts.AlertRoad;
 import it.sayservice.platform.smartplanner.data.message.alerts.CreatorType;
 import it.sayservice.platform.smartplanner.data.message.cache.CacheUpdateResponse;
-import it.sayservice.platform.smartplanner.data.message.otpbeans.CompressedTransitTimeTable;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.GeolocalizedStopRequest;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Parking;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
@@ -37,6 +36,7 @@ import java.util.Map;
 
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
 import eu.trentorise.smartcampus.mobilityservice.model.TaxiContact;
+import eu.trentorise.smartcampus.mobilityservice.model.TaxiStation;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
 import eu.trentorise.smartcampus.network.JsonUtils;
@@ -74,6 +74,7 @@ public class MobilityDataService {
 	private static final String EXTENDED_ROUTES_DB = "routesDB/%s/extended";
 	private static final String VERSIONS = "versions";
 	private static final String TAXIINFO = "getTaxiAgencyContacts/";
+	private static final String TAXISTOPS = "getTaxiStation/";
 
 	private String serviceUrl;
 
@@ -549,5 +550,22 @@ public class MobilityDataService {
 		}
 
 	}	
-	
+
+	/**
+	 * Return the taxi stops
+	 * @param token
+	 * @return
+	 * @throws MobilityServiceException
+	 */
+	public List<TaxiStation> getTaxiStops(String token) throws MobilityServiceException {
+		try {
+			String json = RemoteConnector.getJSON(serviceUrl, TAXIINFO, token);
+			return JsonUtils.toObjectList(json, TaxiStation.class);
+		}catch (SecurityException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new MobilityServiceException(e);
+		}
+
+	}	
 }

@@ -65,6 +65,7 @@ import eu.trentorise.smartcampus.mobilityservice.model.BasicItinerary;
 import eu.trentorise.smartcampus.mobilityservice.model.BasicRecurrentJourney;
 import eu.trentorise.smartcampus.mobilityservice.model.Delay;
 import eu.trentorise.smartcampus.mobilityservice.model.TaxiContact;
+import eu.trentorise.smartcampus.mobilityservice.model.TaxiStation;
 import eu.trentorise.smartcampus.mobilityservice.model.TimeTable;
 import eu.trentorise.smartcampus.mobilityservice.model.TripData;
 import eu.trentorise.smartcampus.network.JsonUtils;
@@ -155,7 +156,7 @@ public class TestClient {
 		System.err.println(stopTrips);
 
 		// timetable for the route
-		TimeTable tt = dataService.getTimeTable("12","%20AC", System.currentTimeMillis(), Constants.USER_AUTH_TOKEN);
+		TimeTable tt = dataService.getTimeTable("12","Ca", System.currentTimeMillis(), Constants.USER_AUTH_TOKEN);
 		Assert.assertNotNull(tt);
 		System.err.println(tt);
 
@@ -171,11 +172,11 @@ public class TestClient {
 	public void geolocalizedStops() throws SecurityException, RemoteException, MobilityServiceException {
 		GeolocalizedStopRequest gsr = new GeolocalizedStopRequest();
 		gsr.setAgencyId("12");
-		double coors[] = new double[] {46.070849,11.125546};
+		double coors[] = new double[] {46.073134,11.121761};
 		gsr.setCoordinates(coors);
 		gsr.setPageNumber(0);
 		gsr.setPageSize(10);
-		gsr.setRadius(0.1);
+		gsr.setRadius(0.005);
 		
 		List res = dataService.getGeolocalizedStops(gsr, Constants.USER_AUTH_TOKEN);		
 		Assert.assertNotNull(res);
@@ -540,4 +541,11 @@ public class TestClient {
 		System.err.println(infos);
 	}
 
+	@Test
+	public void taxiStations() throws SecurityException, MobilityServiceException {
+		List<TaxiStation> stops = dataService.getTaxiStops(Constants.USER_AUTH_TOKEN);
+		Assert.assertNotNull(stops);
+		Assert.assertTrue(stops.size() > 0);
+		System.err.println(stops);
+	}
 }
