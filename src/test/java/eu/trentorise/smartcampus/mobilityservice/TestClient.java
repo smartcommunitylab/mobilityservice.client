@@ -57,6 +57,7 @@ import java.util.zip.ZipInputStream;
 import junit.framework.Assert;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.trentorise.smartcampus.communicator.CommunicatorConnector;
@@ -119,6 +120,7 @@ public class TestClient {
 	}
 
 	@Test
+	@Ignore
 	public void trips() throws SecurityException, MobilityServiceException {
 		// get road information
 		List<Route> routes = dataService.getRoutes("12",Constants.USER_AUTH_TOKEN);
@@ -225,6 +227,7 @@ public class TestClient {
 	}
 
 	@Test
+	@Ignore
 	public void alerts() throws MobilityServiceException {
 		// delay
 		AlertDelay ac = new AlertDelay();
@@ -303,6 +306,7 @@ public class TestClient {
 	}
 	
 	@Test
+	@Ignore
 	public void userSingleJourneys() throws MobilityServiceException {
 		SingleJourney request = new SingleJourney();
 		request.setDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
@@ -348,6 +352,7 @@ public class TestClient {
 		}
 	}
 	@Test
+	@Ignore
 	public void userRecurrJourneys() throws MobilityServiceException {
 		// recurrent
 		RecurrentJourneyParameters recRequest = new RecurrentJourneyParameters();
@@ -396,6 +401,7 @@ public class TestClient {
 	}
 
 	@Test
+	@Ignore
 	public void testAlerts() throws Exception {
 		CommunicatorConnector communicatorConnector = new CommunicatorConnector(Constants.COMMUNICATOR_SRV_URL, Constants.APPID);
 		long since = System.currentTimeMillis();

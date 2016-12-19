@@ -23,7 +23,7 @@ public class Constants {
 
 	static final String USER_AUTH_TOKEN = "";
 	static final String CLIENT_AUTH_TOKEN = "";
-	public static final String SERVER_URL = "https://dev.smartcommunitylab.it/core.mobility";
+	public static final String SERVER_URL = "https://tn.smartcommunitylab.it/core.mobility";
 	public static final String COMMUNICATOR_SRV_URL = "https://tn.smartcampuslab.it/core.communicator";
 	public static final String APPID = "core.mobility";
 
